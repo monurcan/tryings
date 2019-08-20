@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Derdini Sikeyim</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      $(window).bind( 'hashchange', function(){location.reload();});
+      $(document).ready(function(){
+        var active = 0;
+        $("input.name").focus();
+        function click(){
+          if(!active){
+            active = 1;
+            $("audio")[0].play();
+            $("#button").addClass( "active" );
+            $("h1").addClass("visible").addClass("zoom");
+            setTimeout(function (){
+              $("#button").removeClass("active");
+              $("h1").removeClass("zoom");
+              active = 0;
+            }, 2000);
+          }
+        }
+        if(window.location.hash){
+          $("h1 span").text(window.location.hash.substr(1).replace("-", " "));
+        }
+        $("#cursor").addClass( "move" );
+        setTimeout(function() {
+          click();
+          setTimeout(function() {$("#cursor").hide();$("#nocursor").hide();}, 2000);
+        }, 3500);
+        $("#button").click(click);
+        $("input.name").on('input',function(){
+          $(this).siblings(".link").val("http://derdinisikeyim.droppages.com/#" + $("input.name").val().replace(" ", "-"));
+          $(this).siblings("a").attr("href", "http://derdinisikeyim.droppages.com/#" + $("input.name").val().replace(" ", "-"));
+        });
+        $(".footer > img").click(function(){
+          $("input.link").select();
+          document.execCommand("copy");
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="nocursor"></div>
+    <div id="wrapper">
+      <div id="button">
+        <div id="back"></div>
+        <div id="top"><p>DERDİNİ SİKEYİM</p></div>
+        <div id="side"></div>
+      </div>
+    </div>
+    <h1>derdini sikeyim <span>abi</p></h1>
+    <div class="footer">
+      <span>arkadaşına gönder:</span>
+      <input type="text" class="name" value="" placeholder="ismi">
+      <input type="text" class="link" value="http://derdinisikeyim.droppages.com/" readonly>
+      <img src="copy.png" alt="linki kopyala">
+      <a href=""><img src="go.png" alt="git"></a>
+    </div>
+    <audio autostart="0" preload="auto" hidden>
+      <source src="audio.ogg" type="audio/ogg">
+    </audio>
+    <img id="cursor" src="cursor.png">
+  </body>
+</html>
