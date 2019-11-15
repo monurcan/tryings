@@ -1,5 +1,3 @@
-// a program to visualize fourier series
-
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <list>
@@ -247,7 +245,7 @@ int main() {
 		T = PERIOD;
 	int trace = 400;
 
-	int numberofCoeffs = 1000;
+	int numberofCoeffs = 11; // odd
 	std::vector<sf::Vector2f> a_k = fourierCoeff(T, numberofCoeffs);
 
 	while (window.isOpen()){
