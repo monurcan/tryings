@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sorting Algorithms</title>
+	<link rel="stylesheet" type="text/css" href="reset.css">
+	<style type="text/css">
+		body {
+			font-family: Arial;
+		}
+		b {
+			font-weight: bold;
+		}
+		.header {
+			padding: 20px;
+			color: #fff;
+			background: #2c3e50;
+			display: 
+		}
+		.header ul {
+			float: right;
+		}
+		.header ul li {
+			display: inline;
+			padding: 0 6px;
+			cursor: pointer;
+		}
+		.header .speed {
+			float: right;
+			margin-right: 20px;
+			padding-right: 20px; 
+			border-right: 2px solid #fff 
+		}
+		.header .speed .addbutton {
+			cursor: pointer;
+		    position: absolute;
+			width: 0; 
+			height: 0; 
+			border-left: 5px solid transparent;
+			border-right: 5px solid transparent;
+			border-bottom: 5px solid #fff;
+			display: inline-block;
+		}
+
+		.header .speed .minbutton {
+			cursor: pointer;
+			width: 0; 
+			height: 0; 
+			border-left: 5px solid transparent;
+			border-right: 5px solid transparent;
+			border-top: 5px solid #fff;
+			display: inline-block;
+		}
+
+		.graph {
+			margin: 40px auto;
+			width: 90%;
+			height: 400px;
+			display: flex;
+			align-items: flex-end;
+		}
+		.graph .bar {
+			width: 0.8%;
+			height: 30%;
+			background: #2c3e50;
+			float: left;
+			margin: 0 0.1%
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		var arr = Array.from({length: 100}, () => Math.floor(Math.random() * 100));
+		var speed = 100.0;
+		var sorted = false;
+
+		function sleep(ms) {
+		  return new Promise(resolve => setTimeout(resolve, ms));
+		}
+		async function draw(){
+			$(".graph").empty();
+			for(const i in arr)
+				$(".graph").append('<div class="bar" style="height: '+arr[i]+'%"></div>');
+			await sleep(1000.0/speed);
+		}
+
+		async function bubbleSort(arr){
+		   var len = arr.length;
+		   for (var i = len-1; i>=0; i--){
+		     for(var j = 1; j<=i; j++){
+		       if(arr[j-1]>arr[j]){
+		           var temp = arr[j-1];
+		           arr[j-1] = arr[j];
+		           arr[j] = temp;
+		           await draw();
+		        }
+		     }
+		   }
+		   return arr;
+		}
+
+		async function selectionSort(arr){
+		  var minIdx, temp, 
+		      len = arr.length;
+		  for(var i = 0; i < len; i++){
+		    minIdx = i;
+		    for(var  j = i+1; j<len; j++){
+		       if(arr[j]<arr[minIdx]){
+		          minIdx = j;
+		       }
+		    }
+		    temp = arr[i];
+		    arr[i] = arr[minIdx];
+		    arr[minIdx] = temp;
+		    await draw();
+		  }
+		  return arr;
+		}
+
+		async function insertionSort(arr){
+			var i, len = arr.length, key, j;
+
+			for(i = 1; i<len; i++){
+				key = arr[i];
+				j = i-1;
+				while(j>=0 && arr[j] > key){
+					arr[j+1]=arr[j--];
+				}
+					await draw();
+				arr[j+1]=key;
+			}
+		  	return arr;
+		}
+
+		async function swap(items, leftIndex, rightIndex){
+		    await draw();
+		    var temp = items[leftIndex];
+		    items[leftIndex] = items[rightIndex];
+		    items[rightIndex] = temp;
+		}
+
+		async function partition(items, left, right) {
+		    var pivot   = items[Math.floor((right + left) / 2)], //middle element
+		        i       = left, //left pointer
+		        j       = right; //right pointer
+		    while (i <= j) {
+		        while (items[i] < pivot) {
+		            i++;
+		        }
+		        while (items[j] > pivot) {
+		            j--;
+		        }
+		        if (i <= j) {
+		            await swap(items, i, j); //sawpping two elements
+		            i++;
+		            j--;
+		        }
+		    }
+		    return i;
+		}
+
+		async function quickSort(items, left, right) {
+		    var index;
+		    if (items.length > 1) {
+		        index = await partition(items, left, right); //index returned from partition
+		        if (left < index - 1) { //more elements on the left side of the pivot
+		            quickSort(items, left, index - 1);
+		        }
+		        if (index < right) { //more elements on the right side of the pivot
+		            quickSort(items, index, right);
+		        }
+		    }
+		    return items;
+		}
+
+		 async function heap_root(input, i) {
+		    var left = 2 * i + 1;
+		    var right = 2 * i + 2;
+		    var max = i;
+
+		    if (left < array_length && input[left] > input[max]) {
+		        max = left;
+		    }
+
+		    if (right < array_length && input[right] > input[max])     {
+		        max = right;
+		    }
+
+		    if (max != i) {
+		        await swap(input, i, max);
+		        await heap_root(input, max);
+		    }
+		}
+
+		async function heapSort(input) {
+		    
+		    array_length = input.length;
+
+		    for (var i = Math.floor(array_length / 2); i >= 0; i -= 1)      {
+		        await heap_root(input, i);
+		      }
+
+		    for (i = input.length - 1; i > 0; i--) {
+		        await swap(input, 0, i);
+		        array_length--;
+		      
+		        await heap_root(input, 0);
+		    }
+		}
+		$(function(){
+			draw();
+		});
+	</script>
+</head>
+<body>
+	<div class="header">
+		<b>Sorting Algorithms</b>
+		<ul>
+			<li onclick='arr = Array.from({length: 100}, () => Math.floor(Math.random() * 100)); sorted=false; draw()'><b>New Array</b></li>
+			<li onclick="if(sorted) arr = Array.from({length: 100}, () => Math.floor(Math.random() * 100));bubbleSort(arr); sorted = true;">Bubble</li>
+			<li onclick="if(sorted) arr = Array.from({length: 100}, () => Math.floor(Math.random() * 100));heapSort(arr);sorted = true;">Heap</li>
+			<li onclick="if(sorted) arr = Array.from({length: 100}, () => Math.floor(Math.random() * 100));quickSort(arr, 0, arr.length -1);sorted = true;">Quick</li>
+			<li onclick="if(sorted) arr = Array.from({length: 100}, () => Math.floor(Math.random() * 100));selectionSort(arr);sorted = true;">Selection</li>
+			<li onclick="if(sorted) arr = Array.from({length: 100}, () => Math.floor(Math.random() * 100));insertionSort(arr);sorted = true;">Insertion</li>
+		</ul>
+		<div class="speed">
+    	<span>Speed: <b>100</b></span>
+		<div class="addbutton" onclick='if(speed<1000) $(".header .speed span b").text(speed=(speed>=200)?(speed+100):((speed>=10)?(speed+10):(speed+1)));'></div>
+    	<div class="minbutton" onclick='if(speed>1) $(".header .speed span b").text(speed=(speed>10)?(speed-10):(speed-1));'></div>
+    	</div>
+	</div>
+	<div class="graph">
+
+	</div>
+</body>
+</html>
