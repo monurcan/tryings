@@ -13,11 +13,6 @@ app.get('/', function (req, res) {
    res.sendFile('index.html', { root: __dirname })
 })
 
-app.get('/json', function (req, res) {
-   res.status(200).json({"message":"ok"})
-})
-
-
 io.on('connection', function (socket) {
   socket.on('message', function (data) {
     //socket.broadcast.emit('message', data); // (1)
@@ -28,5 +23,5 @@ io.on('connection', function (socket) {
 
 // on change app par server
 server.listen(3000, function () {
- console.log('Votre app est disponible sur localhost:3000 !')
+ console.log('Running.')
 })
