@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mine Sweeper</title>
+	<style>
+		body {
+	padding: 0;
+	margin: 6px;
+	background: #2f3640;
+	font-weight: bold;
+    font-family: Lato, Helvetica, Roboto, sans-serif;
+    font-size: 22.6px;
+}
+
+table {
+	text-align: center;
+}
+
+table tr {
+	height: 36px;
+	margin: 0;
+	padding: 0;
+}
+
+table tr td {
+	border:  1px solid #718093;
+	width: 36px;
+	height: 36px;
+	border-radius: 6px;
+	margin: 1px;
+	display: inline-block;
+	background: #7f8fa6;
+	transition: 1s all;
+	cursor:  pointer;
+	padding: 6px;
+	box-sizing: border-box;
+}
+
+table tr td:hover {
+	opacity: 0.8;
+	box-shadow: 0px 1px #000;
+}
+
+table tr td:not(.mine)[data-number="1"].clicked:before {
+	content: "1";
+}
+table tr td:not(.mine)[data-number="2"].clicked:before {
+	content: "2";
+}
+table tr td:not(.mine)[data-number="3"].clicked:before {
+	content: "3";
+}
+table tr td:not(.mine)[data-number="4"].clicked:before {
+	content: "4";
+}
+table tr td:not(.mine)[data-number="5"].clicked:before {
+	content: "5";
+}
+table tr td:not(.mine)[data-number="6"].clicked:before {
+	content: "6";
+}
+table tr td:not(.mine)[data-number="7"].clicked:before {
+	content: "7";
+}
+table tr td:not(.mine)[data-number="8"].clicked:before {
+	content: "8";
+}
+table tr td:not(.mine)[data-number="0"].clicked {
+	background: #ccc;
+}
+table tr td:not(.mine)[data-number="1"].clicked {
+	background: #006266;
+}
+table tr td:not(.mine)[data-number="2"].clicked {
+	background: #009432;
+}
+table tr td:not(.mine)[data-number="3"].clicked {
+	background: #FFC312;
+}
+table tr td:not(.mine)[data-number="4"].clicked {
+	background: #F79F1F;
+}
+table tr td:not(.mine)[data-number="5"].clicked {
+	background: #EE5A24;
+}
+table tr td:not(.mine)[data-number="6"].clicked {
+	background: #EA2027;
+}
+table tr td:not(.mine)[data-number="7"].clicked, table tr td:not(.mine)[data-number="8"].clicked {
+	background: #6F1E51;
+}
+
+table tr td.flagged:before {
+	content: url("https://cdn-icons-png.flaticon.com/24/2107/2107932.png");
+}
+
+table tr td.mine:not(.flagged).clicked:before {
+	content: url("https://cdn-icons-png.flaticon.com/24/6515/6515028.png");
+}
+
+table {
+	float:  left;
+}
+
+div.time {
+	float:  right;
+	width:  100px;
+	text-align: center;
+	background: #ccc;
+	border-radius: 10px;
+	padding: 10px;
+
+}
+
+div.time img {
+	display: block;
+	width: 40px;
+	margin:  12px auto;
+}
+
+.time > b {
+	display: block;
+	position: absolute;
+	margin-top: 30px;
+	font-size: 17px;
+	background: #ccc;
+	padding: 10px;
+	border-radius: 10px;
+	width:  100px;
+	margin-left: -10px;
+	cursor: pointer;
+	z-index: 100;
+}
+
+.finish {
+	display: none;
+	position: absolute;
+	z-index: 99;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.3);
+}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script>
+		if (confirm('Do you want to select a difficulty level?')){
+			var row=parseInt(prompt("# of rows", "14"));
+			var column=parseInt(prompt("# of rows", "31"));
+			var mineNumber = parseInt(prompt("# of rows", "66"));
+			if(mineNumber > row*column){
+				mineNumber = parseInt(Math.random()*row*column/5);
+			}
+		}else {
+			var row=14;
+			var column=31;
+			var mineNumber = 66;
+		}
+
+		var sec = 0; /* holds incrementing value */
+		var min = 0;
+		function timer() {
+		  secOut = checkTime(sec);
+		  minOut = checkTime(min);
+		  ++sec;
+		  if (sec == 60) {
+		    ++min;
+		    sec = 0;
+		  }
+		  document.getElementById("sec").innerHTML = secOut;
+		  document.getElementById("min").innerHTML = minOut;
+		}
+
+		function checkTime(i) {
+		  if (i < 10) {
+		    i = "0" + i;
+		  }
+		  return i;
+		}
+
+		function KomsularaTiklaSonraData0KomsularinKomsularaTikla(x,y){
+			console.log(x,y);
+			//KomsularaTikla (not mine)
+			for(var i = Math.max(x-1, 0); i <= Math.min(x+1, column-1); i++)
+				for(var j = Math.max(y-1, 0); j <= Math.min(y+1, row-1); j++){
+					if(i == x && j == y){
+						if($("table tr:eq("+j+") td:eq("+i+")").is(":not(.mine)")){
+							$("table tr:eq("+j+") td:eq("+i+")").addClass("clicked");
+							$("table tr:eq("+j+") td:eq("+i+")").removeClass("flagged");
+						}
+					}else {
+						if(parseInt($("table tr:eq("+j+") td:eq("+i+")").attr("data-number")) == 0 && $("table tr:eq("+j+") td:eq("+i+")").is(":not(.clicked)")){
+							//Data0KomsularinKomsularaTikla
+							KomsularaTiklaSonraData0KomsularinKomsularaTikla(i,j);
+						}
+						
+						if($("table tr:eq("+j+") td:eq("+i+")").is(":not(.mine)")){
+							$("table tr:eq("+j+") td:eq("+i+")").addClass("clicked");
+							$("table tr:eq("+j+") td:eq("+i+")").removeClass("flagged");
+						}
+					}
+				}			
+		}
+
+		$(function(){
+			var html = "";
+			var currentNumber = 0;
+
+			var TimerObj = setInterval(timer, 1000);
+
+			//initialize the map
+			$(".totalNumber").append(mineNumber);
+
+			for(var i=0; i<row; i++){
+				html += "<tr>";
+				for(var j=0; j<column; j++){
+						html += (Math.random() < mineNumber/(column*row)) ? "<td data-number='0' class='mine'></td>" : "<td data-number='0'></td>";
+				}
+				html += "</tr>";
+			}
+			$("table").html(html);
+			// check if mineNumber?
+			do {
+				currentNumber = $("table td.mine").length;
+				if(mineNumber < currentNumber){
+					$("table td.mine:eq("+parseInt(Math.random()*currentNumber)+")").removeClass("mine");
+				}else if(mineNumber > currentNumber){
+					$("table td:not('.mine'):eq("+parseInt(Math.random()*row*column)+")").addClass("mine");
+				}
+			}while(mineNumber != $("table td.mine").length);
+			
+			$("table td.mine").each(function(){
+				var x = $(this).index();
+				var y = $(this).parent().index();
+				for(var i = Math.max(0,x-1); i <= Math.min(x+1,column-1); i++)
+					for(var j = Math.max(y-1,0); j <= Math.min(y+1,row-1); j++){
+						var current = parseInt($("table tr:eq("+j+") td:eq("+i+")").attr("data-number"));
+						$("table tr:eq("+j+") td:eq("+i+")").attr("data-number", current+1);
+					}
+			});
+
+			$("table tr td").bind('click', function(e){
+				if($(this).is(".flagged")) return;
+
+				if($(this).is(".clicked")){
+					if($(this).attr("data-number")==0) return;
+					
+					var NeighborMines = 0;
+					
+					var x = $(this).index();
+					var y = $(this).parent().index();
+					for(var i = Math.max(0,x-1); i <= Math.min(x+1,column-1); i++)
+						for(var j = Math.max(y-1,0); j <= Math.min(y+1,row-1); j++)
+							if($("table tr:eq("+j+") td:eq("+i+")").is(".flagged"))
+								NeighborMines++;
+
+					if(NeighborMines == $(this).attr("data-number")){
+						console.log("autoclick");
+						console.log(x,y);
+						console.log(x+1, column-1);
+						console.log(y+1, row-1);
+						for(var i = Math.max(x-1, 0); i <= Math.min(x+1, column-1); i++)
+							for(var j = Math.max(y-1, 0); j <= Math.min(y+1, row-1); j++){
+								console.log(i,j);
+								if(i == x && j == y) continue;
+								
+								var elem = $("table tr:eq("+j+") td:eq("+i+")");
+								if(elem.is(".flagged") || elem.is(".clicked")) continue;
+								console.log(i,j);
+								if(elem.is(".mine")){
+									elem.css("background", "red");
+									$("table tr td.mine").addClass("clicked");
+									//stop time
+									clearInterval(TimerObj);
+									$(".finish").show();
+
+									$("table tr td.flagged:not(.mine)").css("background", "#B53471");
+								}
+
+								elem.addClass("clicked");
+								
+								if(elem.attr("data-number") == 0){
+									KomsularaTiklaSonraData0KomsularinKomsularaTikla(elem.index(), elem.parent().index());
+								}
+							}
+					}
+				}else {
+					if($(this).is(".mine")){
+						$(this).css("background", "red");
+						$("table tr td.mine").addClass("clicked");
+						//stop time
+						clearInterval(TimerObj);
+						$(".finish").show();
+
+						$("table tr td.flagged:not(.mine)").css("background", "#B53471");
+					}
+					if($(this).is(":not(.flagged)")){
+						$(this).addClass("clicked");
+						
+						if($(this).attr("data-number") == 0){
+							KomsularaTiklaSonraData0KomsularinKomsularaTikla($(this).index(), $(this).parent().index());
+						}
+					}
+				}
+
+				var isFinished = true;
+				$("table tr td:not(.mine)").each(function(){ 
+    				if($(this).is(":not(.clicked)")){
+    					isFinished = false;
+    					return;
+    				}
+  				});
+				
+				if(isFinished){
+					$("table tr td.mine").addClass("clicked");
+					clearInterval(TimerObj);
+					$(".finish").show();
+				}
+
+			});
+
+			$("table tr td").bind('contextmenu', function(e){
+			    e.preventDefault();
+				var currentTotalNumberFlags = parseInt($(".flaggedNumber").text());
+			    if((currentTotalNumberFlags < mineNumber) && $(this).is(":not(.flagged)") && $(this).is(":not(.clicked)")){
+			    	$(this).addClass("flagged");
+			    	$(".flaggedNumber").html(currentTotalNumberFlags+1);
+			    }else if($(this).is(".flagged")){
+			    	$(this).removeClass("flagged");
+			    	$(".flaggedNumber").html(currentTotalNumberFlags-1);
+			    }else if(currentTotalNumberFlags == mineNumber) {
+			    	alert("You used all the flags!");
+			    }
+
+			    return false;
+			});
+
+		});
+	</script>
+</head>
+<body>
+	<table>
+	</table>
+
+	<div class="time">
+	<img src="https://cdn-icons-png.flaticon.com/512/2107/2107932.png" alt="">
+	<span class="flagged"><b class="flaggedNumber">0</b>/<b class="totalNumber"></b></span>
+	<hr>
+	<img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="">
+	<span><b id="min">00</b>:<b id="sec">00</b></span>
+	<b onClick="window.location.reload();">New Game</b>
+	</div>
+
+	<div class="finish"></div>
+</body>
+</html>
